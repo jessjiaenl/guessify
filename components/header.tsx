@@ -14,10 +14,16 @@ export function Header() {
                         CS 5356 – HW 6
                     </Link>
                     <nav className="flex items-center gap-2">
-                        <Link href="/todos">
-                            <Button variant="ghost">Todos</Button>
+                        <Link href="/game">
+                            <Button variant="ghost">Game</Button>
                         </Link>
-                        <AdminNavEntry />
+                        <Link href="/leaderboard">
+                            <Button variant="ghost">Leaderboard</Button>
+                        </Link>
+                        <Link href="/profile">
+                            <Button variant="ghost">Profile</Button>
+                        </Link>
+                        {/* <AdminNavEntry /> */}
                     </nav>
                 </div>
 
