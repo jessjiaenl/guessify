@@ -5,8 +5,8 @@ import type { ReactNode } from "react"
 import { Providers } from "./providers"
 
 export const metadata: Metadata = {
-    title: "Better Auth Next.js Starter",
-    description: "Better Auth Next.js Starter with Postgres, Drizzle, shadcn/ui and Tanstack Query"
+    title: "Guessify",
+    description: "Song guessing web app with Postgres, Drizzle, shadcn/ui and Tanstack Query"
 }
 
 export default function RootLayout({
