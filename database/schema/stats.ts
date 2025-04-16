@@ -14,7 +14,7 @@ import { questions } from "./questions";
 // each row corresponds to a round of N questions
 export const rounds = pgTable("rounds", {
     id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id").references(() => users.id).notNull(),
+    userId: text("user_id").references(() => users.id).notNull(),
     categoryId: uuid("category_id").references(() => quizCategories.id).notNull(),
     score: integer("score").notNull(),
     createdAt: timestamp("created_at").defaultNow(),
