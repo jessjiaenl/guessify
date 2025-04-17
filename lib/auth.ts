@@ -23,6 +23,10 @@ export const auth = betterAuth({
     emailAndPassword: {
         enabled: true
     },
+    trustedOrigins: [
+        "https://guessify-tau.vercel.app",
+        "http://localhost:3000"
+    ],
     plugins: [
         nextCookies() // keep this last in `plugins` array
     ]
