@@ -11,7 +11,7 @@ export function Header() {
             <div className="container mx-auto flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <Link href="/" className="flex items-center gap-2">
-                        CS 5356 – HW 6
+                        Guessify
                     </Link>
                     <nav className="flex items-center gap-2">
                         <Link href="/game">
