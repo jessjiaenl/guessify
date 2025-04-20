@@ -11,7 +11,7 @@ import { answersHistory } from "@/database/schema/stats"
 import { questions, songs, quizCategories } from "@/database/schema/questions"
 import { rounds } from "@/database/schema/stats"
 
-import { HistoryClient } from "./history-client"
+import { HistoryClient } from "./history-table"
 
 export default async function HistoryPage() {
     const session = await auth.api.getSession({
