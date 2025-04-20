@@ -10,37 +10,13 @@ import { eq } from "drizzle-orm"
 import { quizCategories } from "@/database/schema/questions"
 import { rounds } from "@/database/schema/stats"
 
-
 interface CategoryScore {
     id: string
     name: string
-    score: number
+    score: number | null // null if user hasn't played any of this category's game
     maxScore: number
-    imageUrl: string
+    imageUrl: string | null
 }
-const mockCategories: CategoryScore[] = [
-    {
-        id: "1",
-        name: "Category 1",
-        score: 10,
-        maxScore: 10,
-        imageUrl: "/category1.png"
-    },
-    {
-        id: "2",
-        name: "Category 2",
-        score: 10,
-        maxScore: 10,
-        imageUrl: "/category2.png"
-    },
-    {
-        id: "3",
-        name: "Category 3",
-        score: 10,
-        maxScore: 10,
-        imageUrl: "/category3.png"
-    }
-]
 
 export default async function ProfilePage() {
     const session = await auth.api.getSession({
@@ -53,10 +29,29 @@ export default async function ProfilePage() {
 
     const user = session.user;
 
-    // query categories and category scores from db
-    // const userRounds = await db.query.rounds.findMany({
-    //     where: eq(rounds.userId, user.id)
-    // })
+    // Get all categories
+    const allCategories = await db.query.quizCategories.findMany();
+
+    // Get user's game rounds
+    const userRounds = await db.query.rounds.findMany({
+        where: eq(rounds.userId, user.id)
+    });
+
+    // Calculate max score per category
+    const categoryScores: CategoryScore[] = allCategories.map(category => {
+        const categoryRounds = userRounds.filter(round => round.categoryId === category.id);
+        const maxScore = categoryRounds.length > 0 
+            ? Math.max(...categoryRounds.map(round => round.score))
+            : null;
+
+        return {
+            id: category.id,
+            name: category.name,
+            score: maxScore,
+            maxScore: 10, // Assuming each round has 10 questions
+            imageUrl: category.imageUrl
+        };
+    });
 
     return (
         <main className="min-h-screen p-8">
@@ -99,23 +94,27 @@ export default async function ProfilePage() {
                 </nav>
 
                 <div className="space-y-6">
-                    {mockCategories.map((category) => (
+                    {categoryScores.map((category) => (
                         <div
                             key={category.id}
                             className="flex items-center gap-4 rounded-lg bg-card p-4 shadow-sm"
                         >
                             <div className="flex h-16 w-16 items-center justify-center rounded-md bg-white p-2">
-                                <img
-                                    src={category.imageUrl}
-                                    alt={category.name}
-                                    className="h-12 w-12 object-contain"
-                                />
+                                {category.imageUrl ? (
+                                    <img
+                                        src={category.imageUrl}
+                                        alt={category.name}
+                                        className="h-12 w-12 object-contain"
+                                    />
+                                ) : (
+                                    <div className="h-12 w-12 rounded-full bg-gray-200" />
+                                )}
                             </div>
                             <div className="flex-1">
                                 <div className="flex items-center justify-between">
                                     <h3 className="font-medium">{category.name}</h3>
                                     <p className="text-sm">
-                                        Score: {category.score}/{category.maxScore}
+                                        Score: {category.score !== null ? `${category.score}/${category.maxScore}` : "N/A"}
                                     </p>
                                 </div>
                             </div>
