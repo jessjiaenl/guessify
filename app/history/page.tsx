@@ -1,5 +1,10 @@
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
+
+import Link from "next/link"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+
 import { db } from "@/database/db"
 import { eq } from "drizzle-orm"
 import { answersHistory } from "@/database/schema/stats"
@@ -43,8 +48,54 @@ export default async function HistoryPage() {
         .where(eq(rounds.userId, user.id))
         .orderBy(quizCategories.name);
 
-    return <HistoryClient 
-        userHistory={userHistory} 
-        categories={categories.map(c => ({ id: c.id, name: c.name }))} 
-    />;
+    return (
+        <main className="min-h-screen p-8">
+            <div className="mx-auto max-w-6xl">
+                <div className="mb-8 flex items-start justify-between">
+                    <div className="flex items-center gap-6">
+                        <Avatar className="h-24 w-24">
+                            <AvatarImage src={user.image || ""} />
+                            <AvatarFallback>{user.name?.[0]?.toUpperCase()}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                            <h1 className="text-2xl font-bold">{user.name}</h1>
+                            <p className="text-sm text-muted-foreground">ID: {user.id}</p>
+                            <p className="text-sm text-muted-foreground">{user.email}</p>
+                            <Button variant="outline" className="mt-2" asChild>
+                                <Link href="/auth/sign-out">Sign out</Link>
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+
+                <nav className="mb-8">
+                    <ul className="flex gap-4 border-b">
+                        <li>
+                            <Link href="/profile" className="block px-4 py-2 text-muted-foreground hover:text-foreground">
+                                Profile
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href="/bookmarks" className="block px-4 py-2 text-muted-foreground hover:text-foreground">
+                                Bookmarks
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href="/history" className="block border-b-2 border-primary px-4 py-2 font-medium">
+                                History
+                            </Link>
+                        </li>
+                    </ul>
+                </nav>
+
+                <HistoryClient 
+                    userHistory={userHistory} 
+                    categories={categories.map(c => ({ id: c.id, name: c.name }))} />
+            </div>
+        </main>
+    );
+    // return <HistoryClient 
+    //     userHistory={userHistory} 
+    //     categories={categories.map(c => ({ id: c.id, name: c.name }))} 
+    // />;
 } 
