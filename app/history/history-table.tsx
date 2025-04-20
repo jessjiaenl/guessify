@@ -43,7 +43,7 @@ export function HistoryClient({ userHistory, categories }: HistoryClientProps) {
                     <SelectContent>
                         <SelectItem value="all">All Categories</SelectItem>
                         {categories.map((category) => (
-                            <SelectItem value={category.name}>
+                            <SelectItem key={category.id} value={category.name}>
                                 {category.name}
                             </SelectItem>
                         ))}
