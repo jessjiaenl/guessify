@@ -32,9 +32,9 @@ export default async function HistoryPage() {
         },
     });
 
-    // Get user's answer history with related information
+    // Join the 4 tables: categories, songs, question, answer
     const userHistory = await db
-        .select({
+        .select({ // columns
             categoryName: quizCategories.name,
             songTitle: songs.title,
             questionText: questions.question,
@@ -94,8 +94,4 @@ export default async function HistoryPage() {
             </div>
         </main>
     );
-    // return <HistoryClient 
-    //     userHistory={userHistory} 
-    //     categories={categories.map(c => ({ id: c.id, name: c.name }))} 
-    // />;
 } 
