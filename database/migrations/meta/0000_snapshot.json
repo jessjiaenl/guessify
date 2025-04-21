@@ -1,5 +1,5 @@
 {
-  "id": "fe752e2a-4da6-486a-b5e9-23a3d56ed6d2",
+  "id": "705f1515-b31e-41bd-8a48-e999fc32137d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -308,15 +308,22 @@
       "name": "bookmarks",
       "schema": "",
       "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
         "user_id": {
           "name": "user_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "song_title": {
-          "name": "song_title",
-          "type": "text",
+        "question_id": {
+          "name": "question_id",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         }
@@ -335,17 +342,22 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
+        },
+        "bookmarks_question_id_questions_id_fk": {
+          "name": "bookmarks_question_id_questions_id_fk",
+          "tableFrom": "bookmarks",
+          "tableTo": "questions",
+          "columnsFrom": [
+            "question_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {
-        "bookmarks_user_id_song_title_pk": {
-          "name": "bookmarks_user_id_song_title_pk",
-          "columns": [
-            "user_id",
-            "song_title"
-          ]
-        }
-      },
+      "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
