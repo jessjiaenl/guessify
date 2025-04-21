@@ -86,8 +86,8 @@ export default async function BookmarksPage() {
                     </ul>
                 </nav>
 
-                <div className="rounded-lg border bg-card">
-                    <div className="grid grid-cols-[1fr_2fr_auto] gap-4 p-4 font-medium">
+                <div className="rounded-lg border">
+                    <div className="grid grid-cols-[1fr_2fr_auto] gap-4 bg-muted p-4 font-medium">
                         <div>Category</div>
                         <div>Question</div>
                         <div></div>
