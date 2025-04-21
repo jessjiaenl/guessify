@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
-import { revalidatePath } from "next/cache"
+// import { revalidatePath } from "next/cache"
 
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -9,12 +9,12 @@ import { TrashIcon } from "@radix-ui/react-icons"
 
 import { db } from "@/database/db"
 import { eq } from "drizzle-orm"
-import { bookmarks } from "@/database/schema/bookmarks"
-import { questions } from "@/database/schema/questions"
-import { quizCategories } from "@/database/schema/questions"
-import { type InferSelectModel } from "drizzle-orm"
+import { bookmarks, questions, quizCategories } from "@/database/schema"
+import { Bookmark } from "@/database/schema"
 
-type Bookmark = InferSelectModel<typeof bookmarks>
+// import { deleteBookmark } from "@/actions/bookmarks"
+// import { useActionState, useOptimistic } from "react"
+import { revalidatePath } from "next/cache"
 
 // Server action to delete bookmark
 async function deleteBookmark(id: Bookmark["id"]) {   
@@ -45,6 +45,8 @@ export default async function BookmarksPage() {
         .leftJoin(questions, eq(bookmarks.questionId, questions.id))
         .leftJoin(quizCategories, eq(questions.categoryId, quizCategories.id))
         .where(eq(bookmarks.userId, user.id));
+
+    // const [state, deleteBookmarkAction, isDeleting] = useActionState(deleteBookmark, null);
 
     return (
         <main className="min-h-screen p-8">
@@ -103,6 +105,7 @@ export default async function BookmarksPage() {
                                         variant="ghost" 
                                         size="icon"
                                         className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                                        // type="submit"
                                     >
                                         <TrashIcon className="h-4 w-4" />
                                     </Button>
