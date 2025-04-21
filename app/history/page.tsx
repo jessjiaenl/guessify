@@ -50,7 +50,7 @@ export default async function HistoryPage() {
 
     return (
         <main className="min-h-screen p-8">
-            <div className="mx-auto max-w-6xl">
+            <div className="mx-auto max-w-4xl">
                 <div className="mb-8 flex items-start justify-between">
                     <div className="flex items-center gap-6">
                         <Avatar className="h-24 w-24">
