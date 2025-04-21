@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
+import { revalidatePath } from "next/cache"
 
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -9,11 +10,17 @@ import { TrashIcon } from "@radix-ui/react-icons"
 import { db } from "@/database/db"
 import { eq } from "drizzle-orm"
 import { bookmarks } from "@/database/schema/bookmarks"
+import { questions } from "@/database/schema/questions"
+import { quizCategories } from "@/database/schema/questions"
+import { type InferSelectModel } from "drizzle-orm"
+
+type Bookmark = InferSelectModel<typeof bookmarks>
 
 // Server action to delete bookmark
-async function deleteBookmark(userId: string, songTitle: string) {    
-    await db.delete(bookmarks)
-        .where(eq(bookmarks.userId, userId) && eq(bookmarks.songTitle, songTitle))
+async function deleteBookmark(id: Bookmark["id"]) {   
+    "use server" 
+    await db.delete(bookmarks).where(eq(bookmarks.id, id))
+    revalidatePath('/bookmarks')
 }
 
 export default async function BookmarksPage() {
@@ -27,10 +34,17 @@ export default async function BookmarksPage() {
 
     const user = session.user;
 
-    // Get user's bookmarks
-    const userBookmarks = await db.query.bookmarks.findMany({
-        where: eq(bookmarks.userId, user.id),
-    });
+    // Get user's bookmarks with related question and category info
+    const userBookmarks = await db
+        .select({
+            id: bookmarks.id,
+            categoryName: quizCategories.name,
+            questionText: questions.question,
+        })
+        .from(bookmarks)
+        .leftJoin(questions, eq(bookmarks.questionId, questions.id))
+        .leftJoin(quizCategories, eq(questions.categoryId, quizCategories.id))
+        .where(eq(bookmarks.userId, user.id));
 
     return (
         <main className="min-h-screen p-8">
@@ -73,20 +87,18 @@ export default async function BookmarksPage() {
                 </nav>
 
                 <div className="rounded-lg border bg-card">
-                    <div className="grid grid-cols-[1fr_1fr_1fr_auto] gap-4 p-4 font-medium">
+                    <div className="grid grid-cols-[1fr_2fr_auto] gap-4 p-4 font-medium">
                         <div>Category</div>
                         <div>Question</div>
-                        <div>Title</div>
                         <div></div>
                     </div>
                     
                     <div className="divide-y">
                         {userBookmarks.map((bookmark) => (
-                            <div key={bookmark.songTitle} className="grid grid-cols-[1fr_1fr_1fr_auto] gap-4 p-4">
-                                <div className="text-sm">Song category 1</div>
-                                <div className="text-sm">Question about {bookmark.songTitle}</div>
-                                <div className="text-sm">{bookmark.songTitle}</div>
-                                <form action={deleteBookmark.bind(null, user.id, bookmark.songTitle)}>
+                            <div key={bookmark.id} className="grid grid-cols-[1fr_2fr_auto] gap-4 p-4">
+                                <div className="text-sm">{bookmark.categoryName || 'Unknown Category'}</div>
+                                <div className="text-sm">{bookmark.questionText || 'Unknown Question'}</div>
+                                <form action={deleteBookmark.bind(null, bookmark.id)}>
                                     <Button 
                                         variant="ghost" 
                                         size="icon"
