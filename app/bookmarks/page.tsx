@@ -1,27 +1,15 @@
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
-// import { revalidatePath } from "next/cache"
 
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { TrashIcon } from "@radix-ui/react-icons"
 
 import { db } from "@/database/db"
 import { eq } from "drizzle-orm"
 import { bookmarks, questions, quizCategories } from "@/database/schema"
-import { Bookmark } from "@/database/schema"
+import { BookmarkTable } from "@/components/BookmarkTable"
 
-// import { deleteBookmark } from "@/actions/bookmarks"
-// import { useActionState, useOptimistic } from "react"
-import { revalidatePath } from "next/cache"
-
-// Server action to delete bookmark
-async function deleteBookmark(id: Bookmark["id"]) {   
-    "use server" 
-    await db.delete(bookmarks).where(eq(bookmarks.id, id))
-    revalidatePath('/bookmarks')
-}
 
 export default async function BookmarksPage() {
     const session = await auth.api.getSession({
@@ -45,8 +33,6 @@ export default async function BookmarksPage() {
         .leftJoin(questions, eq(bookmarks.questionId, questions.id))
         .leftJoin(quizCategories, eq(questions.categoryId, quizCategories.id))
         .where(eq(bookmarks.userId, user.id));
-
-    // const [state, deleteBookmarkAction, isDeleting] = useActionState(deleteBookmark, null);
 
     return (
         <main className="min-h-screen p-8">
@@ -88,38 +74,7 @@ export default async function BookmarksPage() {
                     </ul>
                 </nav>
 
-                <div className="rounded-lg border">
-                    <div className="grid grid-cols-[1fr_2fr_auto] gap-4 bg-muted p-4 font-medium">
-                        <div>Category</div>
-                        <div>Question</div>
-                        <div></div>
-                    </div>
-                    
-                    <div className="divide-y">
-                        {userBookmarks.map((bookmark) => (
-                            <div key={bookmark.id} className="grid grid-cols-[1fr_2fr_auto] gap-4 p-4">
-                                <div className="text-sm">{bookmark.categoryName || 'Unknown Category'}</div>
-                                <div className="text-sm">{bookmark.questionText || 'Unknown Question'}</div>
-                                <form action={deleteBookmark.bind(null, bookmark.id)}>
-                                    <Button 
-                                        variant="ghost" 
-                                        size="icon"
-                                        className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                                        // type="submit"
-                                    >
-                                        <TrashIcon className="h-4 w-4" />
-                                    </Button>
-                                </form>
-                            </div>
-                        ))}
-                        
-                        {userBookmarks.length === 0 && (
-                            <div className="p-4 text-center text-sm text-muted-foreground">
-                                No bookmarks yet
-                            </div>
-                        )}
-                    </div>
-                </div>
+                <BookmarkTable userBookmarks={userBookmarks}/>
             </div>
         </main>
     )
