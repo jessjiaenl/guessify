@@ -34,7 +34,17 @@ interface GameClientProps {
   category: Category;
 }
 
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
 export default function GameClient({ questions, category }: GameClientProps) {
+  const [shuffledQuestions, setShuffledQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [score, setScore] = useState(0);
@@ -42,7 +52,17 @@ export default function GameClient({ questions, category }: GameClientProps) {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [gameComplete, setGameComplete] = useState(false);
 
-  const currentQuestion = questions[currentQuestionIndex];
+  useEffect(() => {
+    const shuffledQs = shuffleArray(
+      questions.map(q => ({
+        ...q,
+        options: shuffleArray(q.options) // also shuffle each question's options
+      }))
+    );
+    setShuffledQuestions(shuffledQs);
+  }, [questions]);
+
+  const currentQuestion = shuffledQuestions[currentQuestionIndex];
 
   // Handle option selection
   const handleOptionSelect = (option: string) => {
@@ -60,7 +80,7 @@ export default function GameClient({ questions, category }: GameClientProps) {
     }]);
 
     setTimeout(() => {
-      if (currentQuestionIndex < questions.length - 1) {
+      if (currentQuestionIndex < shuffledQuestions.length - 1) {
         setCurrentQuestionIndex(prev => prev + 1);
         setSelectedOption(null);
       } else {
@@ -77,7 +97,7 @@ export default function GameClient({ questions, category }: GameClientProps) {
 
   const saveGameResults = async () => {
     try {
-      const finalScore = Math.round((answers.filter(a => a.isCorrect).length / questions.length) * 100);
+      const finalScore = Math.round((answers.filter(a => a.isCorrect).length / shuffledQuestions.length) * 100);
   
       const response = await fetch("/api/save-round", {
         method: "POST",
@@ -109,7 +129,7 @@ export default function GameClient({ questions, category }: GameClientProps) {
   };
 
   // If no questions
-  if (!questions || questions.length === 0) {
+  if (!shuffledQuestions || shuffledQuestions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-[#faf8f6]">
         <div className="w-full max-w-3xl bg-gray-100 rounded-2xl p-10 shadow-md text-center">
@@ -133,7 +153,7 @@ export default function GameClient({ questions, category }: GameClientProps) {
               {/* Progress and bookmark */}
               <div className="flex justify-between items-center mb-8">
                 <div className="text-lg font-medium text-gray-700">
-                  {currentQuestionIndex + 1}/{questions.length}
+                  {currentQuestionIndex + 1}/{shuffledQuestions.length}
                 </div>
                 <button onClick={toggleBookmark} className="focus:outline-none" aria-label="Bookmark">
                   {isBookmarked ? (
@@ -177,7 +197,7 @@ export default function GameClient({ questions, category }: GameClientProps) {
           ) : (
             <div className="text-center py-10">
               <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-800">Game Complete!</h2>
-              <p className="text-2xl mb-8 text-gray-700">Your Score: <span className="font-bold">{Math.round((score / questions.length) * 100)}</span></p>
+              <p className="text-2xl mb-8 text-gray-700">Your Score: <span className="font-bold">{Math.round((score / shuffledQuestions.length) * 100)}</span></p>
               <div className="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-6">
                 <Link href="/" className="px-8 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 text-lg font-medium">
                   Return Home
