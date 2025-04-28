@@ -49,9 +49,10 @@ export default function GameClient({ questions, category }: GameClientProps) {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [answers, setAnswers] = useState<{ questionId: string, selectedAnswer: string, isCorrect: boolean }[]>([]);
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [bookmarkedQuestions, setBookmarkedQuestions] = useState<Set<string>>(new Set());
   const [gameComplete, setGameComplete] = useState(false);
 
+  // Shuffle questions and options on first render
   useEffect(() => {
     const shuffledQs = shuffleArray(
       questions.map(q => ({
@@ -60,6 +61,11 @@ export default function GameClient({ questions, category }: GameClientProps) {
       }))
     );
     setShuffledQuestions(shuffledQs);
+
+    // Fetch bookmark for the first question immediately
+    if (shuffledQs.length > 0) {
+      fetchBookmarkStatus(shuffledQs[0].id);
+    }
   }, [questions]);
 
   const currentQuestion = shuffledQuestions[currentQuestionIndex];
@@ -79,6 +85,7 @@ export default function GameClient({ questions, category }: GameClientProps) {
       isCorrect: isCorrect,
     }]);
 
+    // Go to next question after 1s
     setTimeout(() => {
       if (currentQuestionIndex < shuffledQuestions.length - 1) {
         setCurrentQuestionIndex(prev => prev + 1);
@@ -89,11 +96,12 @@ export default function GameClient({ questions, category }: GameClientProps) {
     }, 1000);
   };
 
+  // Save the game results to database once complete
   useEffect(() => {
     if (gameComplete) {
       saveGameResults();
     }
-  }, [gameComplete]); // only when game is complete
+  }, [gameComplete]);
 
   const saveGameResults = async () => {
     try {
@@ -123,9 +131,71 @@ export default function GameClient({ questions, category }: GameClientProps) {
     }
   };
 
-  // Toggle bookmark
-  const toggleBookmark = () => {
-    setIsBookmarked(!isBookmarked);
+  const fetchBookmarkStatus = async (questionId: string) => {
+    try {
+      const response = await fetch(`/api/bookmark/status?questionId=${questionId}`);
+      const data = await response.json();
+
+      if (data.isBookmarked) {
+        setBookmarkedQuestions(prev => new Set(prev).add(questionId));
+      } else {
+        setBookmarkedQuestions(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(questionId);
+          return newSet;
+        });
+      }
+    } catch (error) {
+      console.error("Error checking bookmark status:", error);
+    }
+  };
+
+  // When currentQuestionIndex changes, update bookmark status
+  useEffect(() => {
+    if (currentQuestion) {
+      fetchBookmarkStatus(currentQuestion.id);
+    }
+  }, [currentQuestionIndex]);
+
+  // Toggle bookmark for the current question
+  const toggleBookmark = async () => {
+    if (!currentQuestion) return;
+
+    const isCurrentlyBookmarked = bookmarkedQuestions.has(currentQuestion.id);
+
+    try {
+      if (isCurrentlyBookmarked) {
+        const response = await fetch("/api/bookmark", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ questionId: currentQuestion.id }),
+        });
+
+        if (response.ok) {
+          setBookmarkedQuestions(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(currentQuestion.id);
+            return newSet;
+          });
+        } else {
+          console.error("Failed to remove bookmark");
+        }
+      } else {
+        const response = await fetch("/api/bookmark", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ questionId: currentQuestion.id }),
+        });
+
+        if (response.ok) {
+          setBookmarkedQuestions(prev => new Set(prev).add(currentQuestion.id));
+        } else {
+          console.error("Failed to add bookmark");
+        }
+      }
+    } catch (error) {
+      console.error("Bookmark error:", error);
+    }
   };
 
   // If no questions
@@ -156,7 +226,7 @@ export default function GameClient({ questions, category }: GameClientProps) {
                   {currentQuestionIndex + 1}/{shuffledQuestions.length}
                 </div>
                 <button onClick={toggleBookmark} className="focus:outline-none" aria-label="Bookmark">
-                  {isBookmarked ? (
+                  {bookmarkedQuestions.has(currentQuestion.id) ? (
                     <svg className="w-7 h-7 fill-current text-gray-800" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                       <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
                     </svg>
