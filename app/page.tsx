@@ -1,59 +1,56 @@
-import Image from "next/image"
+import Link from "next/link";
+import { db } from "@/database/db";
+import { quizCategories } from "@/database/schema/questions";
 
-export default function Home() {
-    return (
-        <div className="grid grow grid-rows-[20px_1fr_20px] items-center justify-items-center gap-16 p-8 pb-20 font-[family-name:var(--font-geist-sans)] sm:p-20">
-            <main className="row-start-2 flex flex-col items-center gap-8 sm:items-start">
-                <Image
-                    className="dark:invert"
-                    src="/next.svg"
-                    alt="Next.js logo"
-                    width={180}
-                    height={38}
-                    priority
-                />
-                <ol className="list-inside list-decimal text-center font-[family-name:var(--font-geist-mono)] text-sm sm:text-left">
-                    <li className="mb-2">
-                        Get started by editing{" "}
-                        <code className="rounded bg-black/[.05] px-1 py-0.5 font-semibold dark:bg-white/[.06]">
-                            src/app/page.tsx
-                        </code>
-                        .
-                    </li>
-                    <li>Save and see your changes instantly.</li>
-                </ol>
+export default async function Home() {
+  const categories = await db.select().from(quizCategories);
 
+  const colors = [
+    "bg-red-300 hover:bg-red-400",
+    "bg-green-300 hover:bg-green-400",
+    "bg-blue-300 hover:bg-blue-400",
+  ];
 
-            </main>
-            <footer className="row-start-3 flex flex-wrap items-center justify-center gap-6">
-                <a
-                    className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-                    href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    <Image aria-hidden src="/file.svg" alt="File icon" width={16} height={16} />
-                    Learn
-                </a>
-                <a
-                    className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-                    href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    <Image aria-hidden src="/window.svg" alt="Window icon" width={16} height={16} />
-                    Examples
-                </a>
-                <a
-                    className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-                    href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    <Image aria-hidden src="/globe.svg" alt="Globe icon" width={16} height={16} />
-                    Go to nextjs.org →
-                </a>
-            </footer>
-        </div>
-    )
+  return (
+    <div className="flex flex-col items-center justify-start pt-12 p-6 bg-[#faf8f6]">
+      {/* Title */}
+      <div className="text-center space-y-2 mb-10">
+        <h1 className="mt-6 text-[60px] font-bold text-black">
+          Guessify
+        </h1>
+        <p className="text-lg text-gray-600">Your music guessing challenge</p>
+        <p className="text-md text-gray-500 mt-2">Choose a category to start 🎧</p>
+      </div>
+
+      {/* Categories */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {categories.map((category, idx) => (
+          <Link
+            key={category.id}
+            href={`/game?categoryId=${category.id}`}
+            className={`flex h-60 items-center justify-between rounded-2xl p-6 ${colors[idx % colors.length]} transition-all duration-300 shadow-lg cursor-pointer transform hover:scale-[1.02] hover:shadow-2xl`}
+          >
+            {/* Left: Text */}
+            <div className="flex-1 flex flex-col justify-center mr-6">
+              <span className="text-2xl font-semibold text-black">{category.name}</span>
+              {category.description && (
+                <p className="text-sm text-gray-700 mt-2">{category.description}</p>
+              )}
+            </div>
+
+            {/* Right: Image or Placeholder */}
+            {category.imageUrl ? (
+              <img
+                src={category.imageUrl}
+                alt={category.name}
+                className="h-32 w-32 object-cover rounded-lg"
+              />
+            ) : (
+              <div className="h-32 w-32 bg-gray-300 rounded-lg"></div>
+            )}
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
 }
