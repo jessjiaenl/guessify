@@ -7,9 +7,9 @@ import GameClient from "./game-client";
 export default async function GamePage({
   searchParams,
 }: {
-  searchParams: { categoryId?: string };
+  searchParams: Promise<{ categoryId?: string }>;
 }) {
-  const { categoryId } = searchParams;
+  const { categoryId } = await searchParams;
 
   // If no categoryId
   if (!categoryId) {
