@@ -14,12 +14,12 @@ export function Header() {
                         Guessify
                     </Link>
                     <nav className="flex items-center gap-2">
-                        <Link href="/game">
+                        {/* <Link href="/game">
                             <Button variant="ghost">Game</Button>
                         </Link>
                         <Link href="/leaderboard">
                             <Button variant="ghost">Leaderboard</Button>
-                        </Link>
+                        </Link> */}
                         <Link href="/profile">
                             <Button variant="ghost">Profile</Button>
                         </Link>
