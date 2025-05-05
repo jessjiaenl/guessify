@@ -4,6 +4,7 @@ import Link from "next/link"
 import { UserButton } from "@daveyplate/better-auth-ui"
 import { Button } from "./ui/button"
 import { AdminNavEntry } from "./AdminNavEntry"
+import { UserIcon } from "lucide-react"
 
 export function Header() {
     return (
@@ -20,14 +21,20 @@ export function Header() {
                         <Link href="/leaderboard">
                             <Button variant="ghost">Leaderboard</Button>
                         </Link> */}
-                        <Link href="/profile">
-                            <Button variant="ghost">Profile</Button>
-                        </Link>
                         {/* <AdminNavEntry /> */}
                     </nav>
                 </div>
 
-                <UserButton />
+                <UserButton
+                    additionalLinks={[
+                        {
+                            href: "/profile",
+                            label: "Profile",
+                            icon: <UserIcon />,
+                            signedIn: true,
+                        },
+                    ]}
+                />
             </div>
         </header>
     )
