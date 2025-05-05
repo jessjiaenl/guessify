@@ -48,7 +48,7 @@ export default async function ProfilePage() {
             id: category.id,
             name: category.name,
             score: maxScore,
-            maxScore: 10, // Assuming each round has 10 questions
+            maxScore: 100, // Assuming each round has 10 questions
             imageUrl: category.imageUrl
         };
     });
