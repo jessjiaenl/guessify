@@ -14,7 +14,7 @@ export default async function GamePage({
   // If no categoryId
   if (!categoryId) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-[#faf8f6]">
+      <div className="flex flex-col items-center justify-center min-h-screen p-6">
         <div className="w-full max-w-3xl bg-gray-100 rounded-2xl p-10 shadow-md text-center">
           <h2 className="text-3xl font-bold mb-6 text-gray-800">No Category Selected</h2>
           <p className="mb-6 text-xl text-gray-700">Please select a category to play the game.</p>
