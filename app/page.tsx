@@ -12,7 +12,7 @@ export default async function Home() {
   ];
 
   return (
-    <div className="flex flex-col items-center justify-start pt-12 p-6 bg-[#faf8f6]">
+    <div className="flex flex-col items-center justify-start pt-12 p-6">
       {/* Title */}
       <div className="text-center space-y-2 mb-10">
         <h1 className="mt-6 text-[60px] font-bold text-black">
