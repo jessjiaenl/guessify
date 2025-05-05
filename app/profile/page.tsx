@@ -60,7 +60,9 @@ export default async function ProfilePage() {
                     <div className="flex items-center gap-6">
                         <Avatar className="h-24 w-24">
                             <AvatarImage src={user.image || ""} />
-                            <AvatarFallback>{user.name?.[0]?.toUpperCase()}</AvatarFallback>
+                            <AvatarFallback className="bg-[#e8e4e0] text-gray-800">
+                                {user.name?.[0]?.toUpperCase()}
+                            </AvatarFallback>
                         </Avatar>
                         <div>
                             <h1 className="text-2xl font-bold">{user.name}</h1>

@@ -34,6 +34,18 @@ export function Header() {
                             signedIn: true,
                         },
                     ]}
+                    classNames={{
+                        trigger: {
+                            avatar: {
+                                fallback: "bg-[#e8e4e0] text-gray-800"
+                            }
+                        },
+                        content: {
+                            avatar: {
+                                fallback: "bg-[#e8e4e0] text-gray-800"
+                            }
+                        }
+                    }}
                 />
             </div>
         </header>
